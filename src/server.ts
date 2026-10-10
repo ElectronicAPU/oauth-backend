@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { db } from "./db/index.ts";
-import { sql } from "drizzle-orm";
+import authRoutes from "./routes/authRoutes.ts"
 
 const app = express();
 
@@ -24,6 +23,8 @@ app.use((req, res, next) => {
 
   next();
 });
+
+app.use("/api/v1/users", authRoutes)
 
 app.get("/", async (req, res) => {
   res.send("API is working!");
