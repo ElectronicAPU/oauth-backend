@@ -4,7 +4,6 @@ CREATE TABLE "users" (
 	"username" varchar(120) NOT NULL,
 	"email" varchar NOT NULL,
 	"password" varchar NOT NULL,
-	"token" varchar NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_id_unique" UNIQUE("id"),

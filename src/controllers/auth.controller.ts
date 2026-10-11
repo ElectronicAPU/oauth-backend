@@ -22,13 +22,13 @@ export const createNewUser = async (req: Request, res: Response) => {
     }
     
     const userData = { name, userName, email, password };
-    const token = jwt.sign({ name, userName, email }, process.env.JWT_SECRET as string, {
-        expiresIn: '30d'
-    });
+    // const token = jwt.sign({ name, userName, email }, process.env.JWT_SECRET as string, {
+    //     expiresIn: '30d'
+    // });
 
     const passwordHash = await bcrypt.hash(password, 8) 
 
-    const [newUser] = await db.insert(users).values({ ...userData, password: passwordHash, token }).returning();
+    const [newUser] = await db.insert(users).values({ ...userData, password: passwordHash }).returning();
 
     if (!newUser) return res.status(500).json({ success: false, message: "Failed to create user." });
 
