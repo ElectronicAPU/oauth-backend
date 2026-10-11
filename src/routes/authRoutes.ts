@@ -1,8 +1,8 @@
 import express from "express";
-import { createNewUser } from "../controllers/auth.controller.ts";
+import { createNewUser, editUser, loginUser } from "../controllers/auth.controller.ts";
 
 const router = express.Router();
 
-router.post("/", createNewUser);
+router.post("/signup", createNewUser).post("/signin", loginUser).put("/edit/:id", editUser);
 
 export default router;
