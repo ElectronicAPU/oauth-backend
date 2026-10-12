@@ -4,34 +4,35 @@ import { users } from "../db/schema/users.ts";
 import { db } from "../db/index.ts";
 import { eq } from "drizzle-orm";
 
+type Role = (typeof users.$inferSelect)["role"]
+
 export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) return res.status(401).json({ success: false, message: "Not authenticated." });
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: number };
+    const payload = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: number, role: Role };
     res.locals.userId = payload.userId;
+    res.locals.role = payload.role;
     next();
   } catch {
     return res.status(401).json({ success: false, message: "Invalid or expired token." });
   }
 };
 
-type Role = (typeof users.$inferSelect)["role"]
 
 export const requireRole = (...allowed: Role[]) => 
-  async (req: Request, res: Response, next: NextFunction) => {
+   (req: Request, res: Response, next: NextFunction) => {
 
-    const [user] = await db.select().from(users).where(eq(users.id, res.locals.userId)).limit(1)
+    const userRole = res.locals.role
 
-    if (!user) return res.status(401).json({success: false, message: "Not authenticated."})
+    if (!userRole) return res.status(401).json({success: false, message: "Not authenticated."})
 
-    if (!allowed.includes(user.role)) {
+    if (!allowed.includes(userRole)) {
       return res.status(403).json({success: false, message: "Forbidden."})
     }
 
-    res.locals.role = user.role
     next()
 
   }

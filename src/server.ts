@@ -1,6 +1,6 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
-import authRoutes from "./routes/authRoutes.ts"
+import authRoutes from "./routes/authRoutes.ts";
 
 const app = express();
 
@@ -24,7 +24,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/v1/users", authRoutes)
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({success: false, message: "Something went wrong!"})
+});
+
+app.use("/api/v1/users", authRoutes);
 
 app.get("/", async (req, res) => {
   res.send("API is working!");
