@@ -1,4 +1,10 @@
-import { integer, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+import {
+  integer,
+  pgEnum,
+  pgTable,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 
 const timestamps = {
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -8,12 +14,15 @@ const timestamps = {
     .notNull(),
 };
 
+export const roleEnum = pgEnum("role", ["user", "admin"]);
+
 export const users = pgTable("users", {
   id: integer("id").primaryKey().unique().notNull().generatedAlwaysAsIdentity(),
   name: varchar("name", { length: 100 }).notNull(),
   userName: varchar("username", { length: 120 }).unique().notNull(),
   email: varchar("email").notNull().unique(),
   password: varchar("password").notNull(),
+  role: roleEnum("role").default("user").notNull(),
   ...timestamps,
 });
 

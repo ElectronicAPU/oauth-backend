@@ -3,7 +3,7 @@ import type { Request, Response } from "express";
 import { db } from "../db/index.ts";
 import { users } from "../db/schema/users.ts";
 import jwt from "jsonwebtoken";
-import { eq, or } from "drizzle-orm";
+import { eq, ne, or } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
 export const createNewUser = async (req: Request, res: Response) => {
@@ -137,3 +137,38 @@ export const editUser = async (req: Request, res:Response) => {
 
 
 }
+
+
+export const getAllUsers = async (req: Request, res: Response) => {
+
+  const role = res.locals.role
+
+  if (role !== "admin") return res.status(403).json({success: false, message: "Can't access this API."})
+
+  const allUsers = await db.select().from(users).where(ne(users.role, role))
+
+  const clearUsers = allUsers.map(({password, ...rest}) => rest)
+
+  return res.status(200).json({success: true, message: [clearUsers]})
+  
+}
+
+export const deleteUser = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+
+  if (!Number.isInteger(id))
+    return res.status(400).json({ success: false, message: "Invalid id." });
+
+  if (id === res.locals.userId)
+    return res.status(400).json({ success: false, message: "You can't delete your own account." });
+
+  const [deleted] = await db
+    .delete(users)
+    .where(eq(users.id, id))
+    .returning({ id: users.id });
+
+  if (!deleted)
+    return res.status(404).json({ success: false, message: "User not found." });
+
+  return res.status(200).json({ success: true, message: "User deleted" });
+};
