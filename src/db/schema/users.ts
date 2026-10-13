@@ -17,7 +17,7 @@ const timestamps = {
 export const roleEnum = pgEnum("role", ["user", "admin"]);
 
 export const users = pgTable("users", {
-  id: integer("id").primaryKey().unique().notNull().generatedAlwaysAsIdentity(),
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   name: varchar("name", { length: 100 }).notNull(),
   userName: varchar("username", { length: 120 }).unique().notNull(),
   email: varchar("email").notNull().unique(),

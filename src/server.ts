@@ -1,4 +1,5 @@
-import express, { Request, Response, NextFunction } from "express";
+import type { NextFunction, Request, Response } from "express";
+import express from "express"
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.ts";
 
@@ -24,15 +25,18 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({success: false, message: "Something went wrong!"})
-});
-
 app.use("/api/v1/users", authRoutes);
 
 app.get("/", async (req, res) => {
   res.send("API is working!");
+});
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  if (err.type === "entity.parse.failed")
+    return res.status(400).json({success: false, message: "Invalid JSON body."})
+
+  console.error(err.stack);
+  res.status(500).json({success: false, message: "Something went wrong!"})
 });
 
 app.listen(PORT, () => {
