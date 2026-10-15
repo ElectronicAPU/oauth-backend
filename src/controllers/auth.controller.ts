@@ -6,14 +6,10 @@ import jwt from "jsonwebtoken";
 import { eq, ne, or } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { sendError, sendSuccess } from "../utils/response.ts";
+import type { SigninInput, SignupInput } from "../validators/auth.validator.ts";
 
 export const createNewUser = async (req: Request, res: Response) => {
-  const { name, userName, email, password } = req.body;
-
-  if (!name) return sendError(res, "name is required.", 400);
-  if (!userName) return sendError(res, "userName is required.", 400);
-  if (!email) return sendError(res, "email is required.", 400);
-  if (!password) return sendError(res, "password is required.", 400);
+  const { name, userName, email, password } = req.body as SignupInput;
 
   const [existing] = await db
     .select()
@@ -45,10 +41,7 @@ export const createNewUser = async (req: Request, res: Response) => {
 };
 
 export const loginUser = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-
-  if (!email) return sendError(res, "Email are required.", 400);
-  if (!password) return sendError(res, "Password are requried.", 400);
+  const { email, password } = req.body as SigninInput;
 
   const [user] = await db.select().from(users).where(eq(users.email, email))
 
